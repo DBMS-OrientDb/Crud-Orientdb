@@ -1,41 +1,29 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import axios from "axios";
 
 const Mahlist = () => {
-    const [mahdata, mahdatachange] = useState(null);
-    const navigate = useNavigate();
-
-    const LoadDetail = (id) => {
-        navigate("/mbd/detail/" + id);
-    }
-    const LoadEdit = (id) => {
-        navigate("/mbd/edit/" + id);
-    }
-    const Removefunction = (id) => {
-        if (window.confirm('Apa mau Dihapus?')) {
-            fetch("http://localhost:8000/mbd/" + id, {
-                method: "DELETE"
-            }).then((res) => {
-                alert('Hapus selesai.')
-                window.location.reload();
-            }).catch((err) => {
-                console.log(err.message)
-            })
-        }
-    }
-
-
+   
+    const serverHost = "http://localhost:5001";
+    const [mahasiswas, setMahasiswas] = useState([]);
 
 
     useEffect(() => {
-        fetch("http://localhost:8000/mbd").then((res) => {
-            return res.json();
-        }).then((resp) => {
-            mahdatachange(resp);
-        }).catch((err) => {
-            console.log(err.message);
-        })
-    }, [])
+        axios.get(serverHost + "/mahasiswa").then((res) => {
+          // console.log(res.data);
+          setMahasiswas(res.data);
+        });
+      }, []);
+
+      function handleHapusClick(id) {
+        const formData = new FormData();
+        formData.append("id", id);
+        axios.post(serverHost + "/mahasiswa/delete", formData).then((res) => {
+          setMahasiswas(res.data);
+        });
+      }
+
+   
     return (
         <div className="container">
             <div className="card">
@@ -58,15 +46,25 @@ const Mahlist = () => {
                         </thead>
                         <tbody>
 
-                            {mahdata &&
-                                mahdata.map(item => (
-                                    <tr key={item.id}>
-                                        <td>{item.id}</td>
-                                        <td>{item.name}</td>
-                                        <td>{item.nim}</td>
-                                        <td>{item.semester}</td>
-                                        <td><a onClick={() => { LoadEdit(item.id) }} className="btn btn-success">Edit</a>
-                                            <a onClick={() => { Removefunction(item.id) }} className="btn btn-danger">Hapus</a>
+                            {mahasiswas.map((mahasiswa) => (
+                                    <tr key={mahasiswa.id}>
+                                        <td>{mahasiswa.id}</td>
+                                        <td>{mahasiswa.name}</td>
+                                        <td>{mahasiswa.nim}</td>
+                                        <td>{mahasiswa.semester}</td>
+                                        <td><Link 
+                                        to={`/mbd/edit/${mahasiswa.id}`}
+                                        state={{
+                                          id: mahasiswa.id,
+                                          name: mahasiswa.name,
+                                          nim : mahasiswa.nim,
+                                          semester : mahasiswa.semester
+                                        }}
+                                        >
+                                            <a  className="btn btn-success" >Edit</a></Link>
+                                            <a  className="btn btn-danger" onClick={(event)=>{
+                                                handleHapusClick(mahasiswa.id);
+                                            }}>Hapus</a>
                                         </td>
                                     </tr>
                                 ))
