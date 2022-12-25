@@ -1,42 +1,40 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link} from "react-router-dom";
+import axios from "axios";
 
 const Mahcreate = () => {
 
-    const[id,idchange]=useState("");
-    const[name,namechange]=useState("");
-    const[nim,nimchange]=useState("");
-    const[semester,semesterchange]=useState("");
-    const[active,activechange]=useState(true);
-    const[validation,valchange]=useState(false);
+    const serverHost = "http://localhost:5001";
+    const[name,setName]=useState("");
+    const[nim,setNim]=useState();
+    const[semester,setSemester]=useState();
+    // const[active,setActive]=useState(true);
+    const [mahasiswa, setMahasiswa] = useState([]);
 
-
-    const navigate=useNavigate();
-
-    const handlesubmit=(e)=>{
-      e.preventDefault();
-      const mahdata={id,name,nim,semester,active};
-      
-
-      fetch("http://localhost:8000/mbd",{
-        method:"POST",
-        headers:{"content-type":"application/json"},
-        body:JSON.stringify(mahdata)
-      }).then((res)=>{
-        alert('Saved successfully.')
-        navigate('/');
-      }).catch((err)=>{
-        console.log(err.message)
-      })
-
-    }
+    function handleSubmit(event) {
+        event.preventDefault();
+        const formData = new FormData();
+        formData.append("name", name);
+        formData.append("nim", nim);
+        formData.append("semester", semester);
+        // formData.append("action", active);
+        axios.post(serverHost + "/tambah", formData).then((res) => {
+          setMahasiswa(res.data);
+        });
+        console.log(mahasiswa);
+        window.location = "/";
+      }
 
     return (
         <div>
 
             <div className="row">
                 <div className="offset-lg-3 col-lg-6">
-                    <form className="container" onSubmit={handlesubmit}>
+                    <form className="container" 
+                    onSubmit={(event)=>{
+                        handleSubmit(event);
+                    }}
+                    >
 
                         <div className="card" style={{"textAlign":"left"}}>
                             <div className="card-title" style={{"textAlign":"center"}}>
@@ -44,60 +42,86 @@ const Mahcreate = () => {
                             </div>
                             <div className="card-body">
 
+                                
                                 <div className="row">
 
-                                    <div className="col-lg-12">
-                                        <div className="form-group">
-                                            <label>ID</label>
-                                            <input value={id} disabled="disabled" className="form-control"></input>
-                                        </div>
-                                    </div>
-
-                                    <div className="col-lg-12">
-                                        <div className="form-group">
-                                            <label>Name</label>
-                                            <input required value={name} onMouseDown={e=>valchange(true)} onChange={e=>namechange(e.target.value)} className="form-control"></input>
-                                        {name.length==0 && validation && <span className="text-danger">Masukan Nama</span>}
-                                        </div>
-                                    </div>
-
-                                    <div className="col-lg-12">
-                                        <div className="form-group">
-                                            <label>NIM</label>
-                                            <input value={nim} onChange={e=>nimchange(e.target.value)} className="form-control"></input>
-                                        </div>
-                                    </div>
-
-                                    <div className="col-lg-12">
-                                        <div className="form-group">
-                                            <label>Semester</label>
-                                            <input value={semester} onChange={e=>semesterchange(e.target.value)} className="form-control"></input>
-                                        </div>
-                                    </div>
-
-                                    <div className="col-lg-12">
-                                        <div className="form-check">
-                                        <input checked={active} onChange={e=>activechange(e.target.checked)} type="checkbox" className="form-check-input"></input>
-                                            <label  className="form-check-label">Is Active</label>
-                                            
-                                        </div>
-                                    </div>
-                                    <div className="col-lg-12">
-                                        <div className="form-group">
-                                           <button className="btn btn-success" type="submit">Simpan</button>
-                                           <Link to="/" className="btn btn-danger">Kembali</Link>
-                                        </div>
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </form>
-
+             <div className="col-lg-12">
+    <div className="form-group">
+    </div>
                 </div>
+
+            <div className="col-lg-12">
+    <div className="form-group">
+        <label htmlFor="name">Name</label>
+        <input 
+        type={"text"}
+        value={name}  
+        onChange={(event) => {
+            setName(event.target.value);
+          }}
+        className="form-control"/>
+    
+    </div>
+            </div>
+
+<div className="col-lg-12">
+    <div className="form-group">
+        <label htmlFor="nim">NIM</label>
+        <input 
+        value={nim}
+         onChange={(event) => {
+            setNim(event.target.value);
+          }}
+        className="form-control"/>
+    </div>
+</div>
+
+<div className="col-lg-12">
+    <div className="form-group">
+        <label htmlFor="semester">Semester</label>
+        <input 
+        value={semester}
+         onChange={(event) => {
+            setSemester(event.target.value);
+          }} 
+         className="form-control"></input>
+    </div>
+</div>
+
+{/* <div className="col-lg-12">
+    <div className="form-check">
+    <input 
+    checked={active} 
+     onChange={(event) => {
+        setActive(event.target.checked);
+      }}
+    type="checkbox" className="form-check-input"></input>
+        <label htmlFor="actives" className="form-check-label">Is Active</label>
+        
+    </div>
+</div> */}
+<div className="col-lg-12">
+    <div className="form-group">
+    <input
+                              type="submit"
+                              className="btn btn-success btn-block px-5"
+                              value="Save Now"
+                              
+                            />
+       <Link to="/" className="btn btn-danger">Kembali</Link>
+    </div>
+</div>
+
+</div>
+
+                               
+</div>
+
+</div>
+
+</form>
+
+</div>
             </div>
         </div>
     );
